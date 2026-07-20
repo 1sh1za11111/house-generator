@@ -187,6 +187,15 @@
           <button class="chip on" data-v="">指定なし</button>
         </div>
       </div>
+      <div class="card ac-slate">
+        <div class="hd"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V8l8-5 8 5v13"/><path d="M4 14h16M4 17.5h16"/></svg></span><span class="tt">階数</span></div>
+        <div class="chips" id="floors">
+          <button class="chip" data-v="1">平屋（1階建て）</button>
+          <button class="chip" data-v="2">2階建て</button>
+          <button class="chip" data-v="3">3階建て</button>
+          <button class="chip on" data-v="">指定なし</button>
+        </div>
+      </div>
       <div class="card ac-teal full">
         <div class="hd"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg></span><span class="tt">外壁材<small>テクスチャを参照画像として反映</small></span></div>
         <div id="mats"></div>
@@ -226,7 +235,8 @@
   <div id="histbar" class="hide" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0 4px;font-size:11.5px;color:var(--mut);">
     <span id="histcount"></span>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <button id="likeToggle" class="tbtn" title="ONにすると、いいねした画像を参考にして生成します">いいね参考 OFF (0)</button>
+      <button id="learnBtn" class="tbtn" title="いいねした画像を分析し、好みの特徴を言語化して蓄積します">いいねから学習 (0)</button>
+      <button id="likeToggle" class="tbtn" title="学習した好みをプロンプトに反映します">好みを反映 OFF</button>
       <button id="selAll" class="tbtn">全選択</button>
       <button id="dlSel" class="tbtn" style="color:#fff;background:var(--blue);border-color:var(--blue);">選択をDL (0)</button>
       <button id="clearHist" style="border:1px solid var(--line);cursor:pointer;font:inherit;font-size:11px;font-weight:700;color:var(--err);background:var(--card);padding:6px 12px;border-radius:8px;">履歴を消去</button>
@@ -245,6 +255,10 @@
     </div>
     <div class="keystate no" id="keyState">未設定</div>
     <div class="hint">管理者から共有された合言葉を入力してください。このブラウザ内にのみ保存されます。<b>APIキーはサーバー側に安全に保管され、ここには表示・保存されません。</b></div>
+    <div class="field-l" style="margin-top:22px;">学習した好みのプロファイル</div>
+    <textarea id="profileBox" rows="7" style="width:100%;font:inherit;font-size:12px;line-height:1.5;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--card);resize:vertical;outline:none;" placeholder="結果一覧の「いいねから学習」を押すと、いいね画像の共通特徴がここに言語化されます（手直し可）"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;"><button class="tbtn" id="saveProfile">保存</button><button class="tbtn" id="clearProfile">クリア</button></div>
+    <div class="hint">「好みを反映 ON」にすると、この内容が生成プロンプトに追記されます。</div>
   </div>
 </div>
 
@@ -264,12 +278,13 @@ const REF={};
 Object.keys(MATERIAL_REFS).forEach(cat=>{MATERIAL_REFS[cat].items.forEach((it,i)=>{REF[it.id]={img:it.img,hint:MATERIAL_REFS[cat].hint,cat:cat,label:cat+(i+1)};});});
 const ALL_IDS=Object.keys(REF);
 
-const BASE="professional architectural real-estate photograph of a modern Japanese custom-built house, architecturally accurate and structurally coherent with realistic buildable construction, correct proportions and consistent perspective, the roof material and the wall cladding forming a realistic and harmonious combination with consistent detailing across the whole building, fully compliant with the Japanese Building Standards Act (Kenchiku Kijun Ho): realistic two-story residential scale under about 10 m in height, the building set back from the site boundaries with proper clearance, a visible concrete foundation base, eaves with gutters and downpipes, balcony railings at a safe height of about 1.1 m, and correctly proportioned windows for daylight and ventilation, sharp clean lines, strong high-contrast composition, refined design, immaculate well-kept surroundings, tasteful exterior floor tiles paving the entrance approach and terrace, set in a quiet Japanese residential neighborhood but the surrounding neighboring houses are kept out of frame with the focus entirely on this single house, a quiet residential street or road may optionally run along the front of the property, photorealistic, ultra detailed, 8k";
+const BASE="professional architectural real-estate photograph of a modern Japanese custom-built house, architecturally accurate and structurally coherent with realistic buildable construction, correct proportions and consistent perspective, the roof material and the wall cladding forming a realistic and harmonious combination with consistent detailing across the whole building, fully compliant with the Japanese Building Standards Act (Kenchiku Kijun Ho): realistic Japanese residential scale generally under about 10 m in height, the building set back from the site boundaries with proper clearance, a visible concrete foundation base, eaves with gutters and downpipes, balcony railings at a safe height of about 1.1 m, and correctly proportioned windows for daylight and ventilation, sharp clean lines, strong high-contrast composition, refined design, immaculate well-kept surroundings, tasteful exterior floor tiles paving the entrance approach and terrace, set in a quiet Japanese residential neighborhood but the surrounding neighboring houses are kept out of frame with the focus entirely on this single house, a quiet residential street or road may optionally run along the front of the property, photorealistic, ultra detailed, 8k";
 const COMP={front:"photographed perfectly straight-on from directly in front of the house, symmetrical frontal elevation, camera lens perpendicular and parallel to the main facade, centered and balanced composition at eye level, flat rectilinear framing with no perspective distortion and no angled corner view",angle:"photographed from a three-quarter angle showing two sides of the house, natural dynamic perspective, eye-level wide shot",low:"photographed from a low angle looking slightly upward at the house, dramatic imposing perspective",high:"photographed from a slightly elevated high angle overlooking the house and front garden"};
+const FLOORS={"1":"a single-story house (Japanese hiraya) with a low horizontal silhouette","2":"a two-story house","3":"a three-story house"};
 const STYLE={"simple-modern":"simple modern minimalist style, cubic flat-roof form","natural":"natural warm style with timber and lush greenery","nordic":"Scandinavian style, gabled roof, light calm tones","wa-modern":"Japanese modern (wa-modern) style, refined Japanese aesthetic","luxury":"luxury high-end style, grand imposing facade, premium finishes","country":"warm country cottage style, pitched roof"};
 const NEG=" Strictly avoid and exclude: overhead power lines, utility poles, electrical wires and cables, TV antennas, wall-mounted air-conditioner units, exposed pipes, electric meter boxes, hoses, trash bins, parked bicycles, general clutter and miscellaneous objects, moss, stains, faded or dirty walls, weeds, concrete block boundary walls, aluminium sliding sash windows, cheap builder-grade tract-house appearance, bland beige mismatched low-cost cladding, tiny cramped windows, narrow pencil-house proportions, other neighbouring houses or buildings visible in the frame or background, crowded cramped neighbourhood with adjacent houses looming close, structurally impossible or nonsensical architecture, physically implausible construction, floating or unsupported building parts, distorted warped or inconsistent geometry, misaligned mismatched structural elements, Escher-like impossible geometry, mismatched or contradictory roof and wall materials, inconsistent cladding across the facade, unrealistic over-scaled height for a Japanese detached house, building sitting hard against the site boundary with no clearance, missing foundation, missing eaves gutters or downpipes, balcony without a proper railing, designs violating Japanese building code, flat dull overcast snapshot lighting, amateur low-quality photo, blur, distortion.";
 
-const state={mode:"auto",aspM:"1:1",aspA:"1:1",res:"1K",comp:"",time:"",material:"",garden:"",style:"",styleOther:"",mCount:1,aCount:4};
+const state={mode:"auto",aspM:"1:1",aspA:"1:1",res:"1K",comp:"",floors:"",time:"",material:"",garden:"",style:"",styleOther:"",mCount:1,aCount:4};
 function rnd(a){return a[Math.floor(Math.random()*a.length)];}
 function pickComp(){const r=Math.random();return r<0.4?"front":(r<0.8?"angle":(r<0.9?"low":"high"));} // 正面40% 斜め40% ロー10% 俯瞰10%
 function pieceStyle(vv,o){if(o&&o.trim())return o.trim()+" style";if(vv&&STYLE[vv])return STYLE[vv];return STYLE[rnd(Object.keys(STYLE))];}
@@ -278,7 +293,8 @@ function buildPrompt(o){
   const style=o.randAll?pieceStyle("",""):pieceStyle(state.style,state.styleOther);
   const gardenSel=o.randAll?rnd(["yes","no",""]):state.garden;
   const compKey=o.randAll?pickComp():(state.comp||pickComp());
-  const parts=[BASE,style,COMP[compKey]];
+  const floorSel=o.randAll?rnd(["1","2","3"]):(state.floors||rnd(["1","2","3"]));
+  const parts=[BASE,style,FLOORS[floorSel],COMP[compKey]];
   parts.push(o.refHint?(o.refHint+" — the exterior facade cladding must exactly match the material, color, texture and board profile shown in the attached reference texture image"):"tasteful refined exterior cladding");
   if(gardenSel==="yes")parts.push("with a beautifully designed front garden, lush green lawn, leafy trees and abundant greenery, with tasteful landscape planting");
   else if(gardenSel==="no")parts.push("with a clean minimal hardscape frontage and paved approach");
@@ -310,7 +326,7 @@ const matsEl=document.getElementById("mats");
 function selectMat(id,el){document.querySelectorAll("#mats .mat").forEach(x=>x.classList.remove("on"));el.classList.add("on");state.material=id;refreshPrompt();}
 
 function chipGroup(id,key){document.querySelectorAll("#"+id+" .chip").forEach(b=>{b.onclick=()=>{document.querySelectorAll("#"+id+" .chip").forEach(x=>x.classList.remove("on"));b.classList.add("on");state[key]=b.dataset.v;if(key==="style"){document.getElementById("styleOther").value="";state.styleOther="";}refreshPrompt();};});}
-chipGroup("aspM","aspM");chipGroup("aspA","aspA");chipGroup("comp","comp");chipGroup("time","time");chipGroup("garden","garden");chipGroup("style","style");
+chipGroup("aspM","aspM");chipGroup("aspA","aspA");chipGroup("comp","comp");chipGroup("floors","floors");chipGroup("time","time");chipGroup("garden","garden");chipGroup("style","style");
 document.getElementById("styleOther").oninput=e=>{state.styleOther=e.target.value;if(e.target.value.trim()){document.querySelectorAll("#style .chip").forEach(x=>x.classList.remove("on"));state.style="";}refreshPrompt();};
 function stepper(mi,pl,va,key,min,max){const set=v=>{state[key]=Math.max(min,Math.min(max,v));document.getElementById(va).textContent=state[key];refreshPrompt();};document.getElementById(mi).onclick=()=>set(state[key]-1);document.getElementById(pl).onclick=()=>set(state[key]+1);}
 stepper("mMinus","mPlus","mCount","mCount",1,8);
@@ -331,7 +347,11 @@ try{const sr=localStorage.getItem("gemini_res");if(sr)setRes(sr);}catch(e){}
 document.getElementById("menuBtn").onclick=()=>document.getElementById("drawer").classList.remove("hide");
 document.getElementById("drawerClose").onclick=()=>document.getElementById("drawer").classList.add("hide");
 document.getElementById("drawer").addEventListener("click",e=>{if(e.target.id==="drawer")document.getElementById("drawer").classList.add("hide");});
-document.getElementById("likeToggle").onclick=()=>{ useLikes=!useLikes; updateLikes(); };
+document.getElementById("likeToggle").onclick=()=>{ if(!styleProfile){setStatus("先に「いいねから学習」を実行してください。",true);return;} useLikes=!useLikes; updateLikes(); };
+document.getElementById("learnBtn").onclick=learnFromLikes;
+document.getElementById("saveProfile").onclick=()=>{ styleProfile=(document.getElementById("profileBox").value||"").trim(); saveProfile(); updateLikes(); setStatus("プロファイルを保存しました。"); };
+document.getElementById("clearProfile").onclick=()=>{ styleProfile=""; saveProfile(); document.getElementById("profileBox").value=""; useLikes=false; updateLikes(); };
+(function(){const pb=document.getElementById("profileBox");if(pb)pb.value=styleProfile;})();
 
 function arClass(ar){return ar==="16:9"?"ar169":(ar==="9:16"?"ar916":"");}
 function setStatus(t,err){const s=document.getElementById("status");s.textContent=t;s.className="status"+(err?" err":"");}
@@ -364,8 +384,39 @@ function buildFinishedCard(rec){
   return c;
 }
 function likedRecs(){return Object.values(RECS).filter(r=>r.liked);}
+const PROF_STORE="style_profile";
+let styleProfile="";
+try{styleProfile=localStorage.getItem(PROF_STORE)||"";}catch(e){}
+function saveProfile(){try{localStorage.setItem(PROF_STORE,styleProfile);}catch(e){}}
+async function describeImages(imgs){
+  const code=(keyInput.value||"").trim();
+  const r=await fetch("/api/describe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({passcode:code,images:imgs})});
+  if(!r.ok){let m="HTTP "+r.status;try{const j=await r.json();if(j.error)m=j.error;}catch(e){}if(r.status===401)m="合言葉が違います。";throw new Error(m);}
+  const d=await r.json();
+  if(d.error)throw new Error(d.error);
+  if(!d.profile)throw new Error("分析結果が空でした");
+  return d.profile;
+}
+async function learnFromLikes(){
+  const L=likedRecs();
+  if(!L.length){setStatus("先に良かった画像に「♡ いいね」を付けてください。",true);return;}
+  const btn=document.getElementById("learnBtn");btn.disabled=true;const old=btn.textContent;btn.textContent="学習中…";
+  try{
+    const imgs=await Promise.all(L.slice(-6).map(r=>shrinkDataUrl(r.dataUrl,512)));
+    styleProfile=await describeImages(imgs);
+    saveProfile();
+    const pb=document.getElementById("profileBox");if(pb)pb.value=styleProfile;
+    useLikes=true;
+    setStatus("学習しました（"+L.length+"枚）。「好みを反映 ON」で生成に反映されます。");
+  }catch(e){ setStatus("学習に失敗: "+(e.message||e),true); }
+  btn.disabled=false;btn.textContent=old;updateLikes();
+}
 function toggleLike(card){const rec=RECS[card.dataset.id];if(!rec)return;rec.liked=!rec.liked;card.classList.toggle("liked",rec.liked);const b=card.querySelector(".likebtn");if(b)b.textContent=rec.liked?"♥ いいね済":"♡ いいね";idbPut(rec);updateLikes();}
-function updateLikes(){const n=likedRecs().length;const t=document.getElementById("likeToggle");if(t)t.textContent=(useLikes?"いいね参考 ON":"いいね参考 OFF")+" ("+n+")";}
+function updateLikes(){
+  const n=likedRecs().length;
+  const lb=document.getElementById("learnBtn");if(lb)lb.textContent="いいねから学習 ("+n+")";
+  const t=document.getElementById("likeToggle");if(t)t.textContent="好みを反映 "+(useLikes&&styleProfile?"ON":"OFF")+(styleProfile?"":"（未学習）");
+}
 function updateHist(){const bar=document.getElementById("histbar");if(savedCount>0){bar.classList.remove("hide");document.getElementById("histcount").textContent="保存済み画像: "+savedCount+" 枚（このブラウザに保存。リロードしても保持されます）";}else{bar.classList.add("hide");}}
 
 const MAX_CONCURRENT=4;      // 同時に生成する上限（一時公開時の暴走防止）
@@ -393,7 +444,6 @@ function generate(){
   const code=(keyInput.value||"").trim();
   if(!code){setStatus("合言葉を入力してください（右上メニュー）。",true);return;}
   const auto=state.mode==="auto", ar=auto?state.aspA:state.aspM, n=auto?state.aCount:state.mCount;
-  const likes=useLikes?likedRecs():[];
   const results=document.getElementById("results");
   for(let i=0;i<n;i++){
     let refImg,refHint,randAll;
@@ -401,7 +451,7 @@ function generate(){
     else{const rid=state.material;refImg=rid?REF[rid].img:null;refHint=rid?REF[rid].hint:"";randAll=false;}
     let prompt=buildPrompt({randAll:randAll,refHint:refHint});
     const refs=[]; if(refImg)refs.push(refImg);
-    if(likes.length){ refs.push(rnd(likes).dataUrl); prompt+=" Note on the attached images: any close-up texture image is a wall material to apply to the facade; any attached full house photo is a liked example — use it only as a reference for the desired overall style, quality and design language, but create a new and clearly different house (do not copy it)."; }
+    if(useLikes&&styleProfile){ prompt+=" Additional style guidance learned from the user's preferred examples (follow these tendencies): "+styleProfile; }
     const card=document.createElement("div");card.className="rc "+arClass(ar);
     card.innerHTML='<span class="badge">待機中</span><div class="ph"><div class="spin"></div></div><div class="cap">待機中…</div><div class="acts"></div>';
     results.prepend(card);
