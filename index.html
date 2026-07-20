@@ -110,6 +110,8 @@
   .lk img{width:100%;height:100%;object-fit:cover;display:block;}
   .lkx{position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:13px;line-height:1;cursor:pointer;padding:0;}
   .lkx:hover{background:var(--err);}
+  .devnote{background:#fff6e8;border:1px solid #f0d3a8;color:#8a5a12;font-size:12.5px;line-height:1.6;padding:12px 14px;border-radius:12px;margin-bottom:16px;}
+  .devbadge{display:inline-block;font-size:10px;font-weight:700;color:#fff;background:var(--orange);padding:1px 7px;border-radius:20px;margin-left:6px;vertical-align:1px;}
   .tbtn{border:1px solid var(--line);cursor:pointer;font:inherit;font-size:11px;font-weight:700;color:var(--blue);background:var(--card);padding:6px 12px;border-radius:8px;}
   .tbtn:hover{background:var(--soft);}
   .lb{position:fixed;inset:0;z-index:100;background:rgba(15,22,40,.93);display:flex;align-items:center;justify-content:center;}
@@ -128,6 +130,12 @@
 <div class="wrap">
   <div class="head"><span class="logo"></span><h1>住宅外観ジェネレーター</h1><button class="menu-btn" id="menuBtn" aria-label="メニュー"><span></span></button></div>
 
+  <div class="modes" id="screens">
+    <button id="scExt" class="on">外観</button>
+    <button id="scInt">内観<span class="devbadge">開発中</span></button>
+  </div>
+
+  <div id="extScreen">
   <div class="modes" id="modes">
     <button id="mAuto" class="on">オート生成</button>
     <button id="mManual">マニュアル</button>
@@ -243,6 +251,50 @@
     </div>
   </div>
 
+  </div><!-- /extScreen -->
+
+  <div id="intScreen" class="hide">
+    <div class="devnote">内観の生成は<b>開発中（ベータ）</b>の機能です。外観に比べて指定どおりにならない場合や、品質が安定しない場合があります。</div>
+    <div class="optgrid">
+      <div class="card ac-teal full">
+        <div class="hd"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/></svg></span><span class="tt">内観の種類</span></div>
+        <div class="chips" id="intType">
+          <button class="chip on" data-v="kitchen">キッチン</button>
+          <button class="chip" data-v="living">天井の高いリビング</button>
+          <button class="chip" data-v="courtyard">中庭</button>
+        </div>
+        <div id="livingOpts" class="hide" style="margin-top:14px;">
+          <div class="field-l">リビングの要素（複数選択可）</div>
+          <div class="chips" id="intOpts">
+            <button class="chip" data-v="void">吹き抜け</button>
+            <button class="chip" data-v="fan">シーリングファン</button>
+            <button class="chip" data-v="stairs">リビング階段</button>
+            <button class="chip" data-v="skylight">天窓</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card ac-blue">
+        <div class="hd"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></span><span class="tt">アスペクト比</span></div>
+        <div class="chips" id="aspI">
+          <button class="chip on" data-v="1:1">1:1 スクエア</button>
+          <button class="chip" data-v="16:9">16:9 横長</button>
+          <button class="chip" data-v="9:16">9:16 縦長</button>
+        </div>
+        <div class="field-l" style="margin-top:13px;">解像度</div>
+        <div class="chips" id="resI">
+          <button class="chip on" data-v="1K">1K</button>
+          <button class="chip" data-v="2K">2K</button>
+        </div>
+      </div>
+
+      <div class="card ac-pink">
+        <div class="hd"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="tt">生成枚数</span></div>
+        <div class="stepper"><button id="iMinus">−</button><div class="val" id="iCount">1</div><button id="iPlus">＋</button></div>
+      </div>
+    </div>
+  </div>
+
   <div style="height:16px;"></div>
   <button class="gen" id="genBtn">生成する</button>
 
@@ -276,7 +328,7 @@
     <div class="field-l" style="margin-top:22px;">学習した好みのプロファイル</div>
     <textarea id="profileBox" rows="7" style="width:100%;font:inherit;font-size:12px;line-height:1.5;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--card);resize:vertical;outline:none;" placeholder="結果一覧の「いいねから学習」を押すと、いいね画像の共通特徴がここに言語化されます（手直し可）"></textarea>
     <div style="display:flex;gap:8px;margin-top:8px;"><button class="tbtn" id="saveProfile">保存</button><button class="tbtn" id="clearProfile">クリア</button></div>
-    <div class="hint">「好みを反映 ON」にすると、この内容が生成プロンプトに追記されます。</div>
+    <div class="hint">「好みを反映 ON」にすると、この内容が<b>細部のアクセントとして軽く</b>反映されます（構図・時間帯・季節・階数・外壁材・全体の雰囲気は上書きされません）。</div>
   </div>
 </div>
 
@@ -298,21 +350,33 @@ const ALL_IDS=Object.keys(REF);
 
 const BASE="professional architectural real-estate photograph of a modern Japanese custom-built house, architecturally accurate and structurally coherent with realistic buildable construction, correct proportions and consistent perspective, the roof material and the wall cladding forming a realistic and harmonious combination with consistent detailing across the whole building, fully compliant with the Japanese Building Standards Act (Kenchiku Kijun Ho): realistic Japanese residential scale generally under about 10 m in height, the building set back from the site boundaries with proper clearance, a visible concrete foundation base, eaves with gutters and downpipes, balcony railings at a safe height of about 1.1 m, and correctly proportioned windows for daylight and ventilation, sharp clean lines, strong high-contrast composition, refined design, immaculate well-kept surroundings, tasteful exterior floor tiles paving the entrance approach and terrace, set in a quiet Japanese residential neighborhood but the surrounding neighboring houses are kept out of frame with the focus entirely on this single house, a quiet residential street or road may optionally run along the front of the property, photorealistic, ultra detailed, 8k";
 const COMP={front:"photographed perfectly straight-on from directly in front of the house, symmetrical frontal elevation, camera lens perpendicular and parallel to the main facade, centered and balanced composition at eye level, flat rectilinear framing with no perspective distortion and no angled corner view",angle:"photographed from a three-quarter angle showing two sides of the house, natural dynamic perspective, eye-level wide shot",low:"photographed from a low angle looking slightly upward at the house, dramatic imposing perspective",high:"photographed from a slightly elevated high angle overlooking the house and front garden"};
+// ---- 内観（開発中） ----
+const INT_BASE="professional architectural interior photograph of a modern Japanese custom-built house, architecturally accurate and structurally coherent with correct proportions and consistent perspective, refined material palette with consistent detailing, soft natural daylight from large windows, tidy and immaculately styled, photorealistic, ultra detailed, 8k";
+const INT_TYPE={kitchen:"a modern kitchen with a clean island counter, integrated appliances, seamless handleless cabinetry and well-organised storage, tasteful pendant and task lighting",living:"a spacious living room with a notably high ceiling, comfortable sofa seating, a calm neutral palette and warm wood accents",courtyard:"an inner courtyard (nakaniwa) seen from inside through full-height glazing, with a small designed garden, gravel, stepping stones and a symbolic tree"};
+const INT_OPT={"void":"a dramatic double-height open-to-above void connecting up to a second-floor gallery landing","fan":"a ceiling fan mounted on the high ceiling","stairs":"an open staircase rising within the living space","skylight":"a skylight bringing daylight down from above"};
+const INT_NEG=" Strictly avoid: clutter and miscellaneous objects, messy visible cables, distorted warped or inconsistent geometry, structurally impossible architecture, mismatched inconsistent materials, blown-out or flat dull lighting, amateur low-quality photo, blur, distortion.";
+function buildInteriorPrompt(){
+  const t=state.intType||"kitchen";
+  const parts=[INT_BASE,INT_TYPE[t]];
+  if(t==="living")state.intOpts.forEach(o=>{if(INT_OPT[o])parts.push(INT_OPT[o]);});
+  return parts.join(", ")+"."+INT_NEG;
+}
 const SEASON={spring:"in spring, fresh light-green new foliage with blossoming trees in the planting",summer:"in summer, lush deep green foliage under strong sunlight",autumn:"in autumn, the foliage turning warm red gold and amber",winter:"in winter, deciduous trees bare with evergreen shrubs remaining, crisp cold clear air"};
 const FLOORS={"1":"a single-story house (Japanese hiraya) with a low horizontal silhouette","2":"a two-story house","3":"a three-story house"};
 const STYLE={"simple-modern":"simple modern minimalist style, cubic flat-roof form","natural":"natural warm style with timber and lush greenery","nordic":"Scandinavian style, gabled roof, light calm tones","wa-modern":"Japanese modern (wa-modern) style, refined Japanese aesthetic","luxury":"luxury high-end style, grand imposing facade, premium finishes","country":"warm country cottage style, pitched roof"};
 const NEG=" Strictly avoid and exclude: overhead power lines, utility poles, electrical wires and cables, TV antennas, wall-mounted air-conditioner units, exposed pipes, electric meter boxes, hoses, trash bins, parked bicycles, general clutter and miscellaneous objects, moss, stains, faded or dirty walls, weeds, concrete block boundary walls, aluminium sliding sash windows, cheap builder-grade tract-house appearance, bland beige mismatched low-cost cladding, tiny cramped windows, narrow pencil-house proportions, other neighbouring houses or buildings visible in the frame or background, crowded cramped neighbourhood with adjacent houses looming close, structurally impossible or nonsensical architecture, physically implausible construction, floating or unsupported building parts, distorted warped or inconsistent geometry, misaligned mismatched structural elements, Escher-like impossible geometry, mismatched or contradictory roof and wall materials, inconsistent cladding across the facade, unrealistic over-scaled height for a Japanese detached house, building sitting hard against the site boundary with no clearance, missing foundation, missing eaves gutters or downpipes, balcony without a proper railing, designs violating Japanese building code, flat dull overcast snapshot lighting, amateur low-quality photo, blur, distortion.";
 
-const state={mode:"auto",aspM:"1:1",aspA:"1:1",res:"1K",comp:"",floors:"",season:"",time:"",material:"",garden:"",style:"",styleOther:"",mCount:1,aCount:4};
+const state={mode:"auto",aspM:"1:1",aspA:"1:1",res:"1K",screen:"ext",intType:"kitchen",intOpts:[],aspI:"1:1",iCount:1,comp:"",floors:"",season:"",time:"",material:"",garden:"",style:"",styleOther:"",mCount:1,aCount:4};
 function rnd(a){return a[Math.floor(Math.random()*a.length)];}
 function pickComp(){const r=Math.random();return r<0.4?"front":(r<0.8?"angle":(r<0.9?"low":"high"));} // 正面40% 斜め40% ロー10% 俯瞰10%
+function pickFloor(){const r=Math.random();return r<0.30?"1":(r<0.975?"2":"3");} // 平屋30% 2階67.5% 3階2.5%
 function pieceStyle(vv,o){if(o&&o.trim())return o.trim()+" style";if(vv&&STYLE[vv])return STYLE[vv];return STYLE[rnd(Object.keys(STYLE))];}
 function buildPrompt(o){
   const timeKey=o.randAll?rnd(["morning","day","night"]):(state.time||rnd(["morning","day","night"]));
   const style=o.randAll?pieceStyle("",""):pieceStyle(state.style,state.styleOther);
   const gardenSel=o.randAll?rnd(["yes","no",""]):state.garden;
   const compKey=o.randAll?pickComp():(state.comp||pickComp());
-  const floorSel=o.randAll?rnd(["1","2","3"]):(state.floors||rnd(["1","2","3"]));
+  const floorSel=o.randAll?pickFloor():(state.floors||pickFloor());
   const seasonKey=o.randAll?rnd(["spring","summer","autumn","winter"]):(state.season||rnd(["spring","summer","autumn","winter"]));
   const parts=[BASE,style,FLOORS[floorSel],COMP[compKey]];
   parts.push(o.refHint?(o.refHint+" — the exterior facade cladding must exactly match the material, color, texture and board profile shown in the attached reference texture image"):"tasteful refined exterior cladding");
@@ -347,11 +411,16 @@ const matsEl=document.getElementById("mats");
 function selectMat(id,el){document.querySelectorAll("#mats .mat").forEach(x=>x.classList.remove("on"));el.classList.add("on");state.material=id;refreshPrompt();}
 
 function chipGroup(id,key){document.querySelectorAll("#"+id+" .chip").forEach(b=>{b.onclick=()=>{document.querySelectorAll("#"+id+" .chip").forEach(x=>x.classList.remove("on"));b.classList.add("on");state[key]=b.dataset.v;if(key==="style"){document.getElementById("styleOther").value="";state.styleOther="";}refreshPrompt();};});}
-chipGroup("aspM","aspM");chipGroup("aspA","aspA");chipGroup("comp","comp");chipGroup("floors","floors");chipGroup("season","season");chipGroup("time","time");chipGroup("garden","garden");chipGroup("style","style");
+chipGroup("aspM","aspM");chipGroup("aspA","aspA");chipGroup("comp","comp");chipGroup("floors","floors");chipGroup("season","season");chipGroup("time","time");chipGroup("aspI","aspI");chipGroup("intType","intType");
+document.querySelectorAll("#intType .chip").forEach(b=>b.addEventListener("click",()=>{document.getElementById("livingOpts").classList.toggle("hide",b.dataset.v!=="living");}));
+document.querySelectorAll("#intOpts .chip").forEach(b=>b.onclick=()=>{const v=b.dataset.v;const i=state.intOpts.indexOf(v);if(i>=0)state.intOpts.splice(i,1);else state.intOpts.push(v);b.classList.toggle("on",i<0);});
+document.getElementById("scExt").onclick=()=>{state.screen="ext";document.getElementById("scExt").classList.add("on");document.getElementById("scInt").classList.remove("on");document.getElementById("extScreen").classList.remove("hide");document.getElementById("intScreen").classList.add("hide");};
+document.getElementById("scInt").onclick=()=>{state.screen="int";document.getElementById("scInt").classList.add("on");document.getElementById("scExt").classList.remove("on");document.getElementById("intScreen").classList.remove("hide");document.getElementById("extScreen").classList.add("hide");};chipGroup("garden","garden");chipGroup("style","style");
 document.getElementById("styleOther").oninput=e=>{state.styleOther=e.target.value;if(e.target.value.trim()){document.querySelectorAll("#style .chip").forEach(x=>x.classList.remove("on"));state.style="";}refreshPrompt();};
 function stepper(mi,pl,va,key,min,max){const set=v=>{state[key]=Math.max(min,Math.min(max,v));document.getElementById(va).textContent=state[key];refreshPrompt();};document.getElementById(mi).onclick=()=>set(state[key]-1);document.getElementById(pl).onclick=()=>set(state[key]+1);}
 stepper("mMinus","mPlus","mCount","mCount",1,8);
 stepper("aMinus","aPlus","aCount","aCount",1,12);
+stepper("iMinus","iPlus","iCount","iCount",1,8);
 const mp=document.getElementById("manualPanel"),ap=document.getElementById("autoPanel");
 document.getElementById("mManual").onclick=()=>{state.mode="manual";document.getElementById("mManual").classList.add("on");document.getElementById("mAuto").classList.remove("on");mp.classList.remove("hide");ap.classList.add("hide");refreshPrompt();};
 document.getElementById("mAuto").onclick=()=>{state.mode="auto";document.getElementById("mAuto").classList.add("on");document.getElementById("mManual").classList.remove("on");ap.classList.remove("hide");mp.classList.add("hide");refreshPrompt();};
@@ -362,8 +431,8 @@ function showKeyState(){const k=(keyInput.value||"").trim();if(k){keyState.textC
 try{const sk=localStorage.getItem(KEY_STORE);if(sk)keyInput.value=sk;}catch(e){}
 showKeyState();
 document.getElementById("saveKey").onclick=()=>{try{localStorage.setItem(KEY_STORE,(keyInput.value||"").trim());}catch(e){}showKeyState();};
-function setRes(v){state.res=v;document.querySelectorAll("#resM .chip,#resA .chip").forEach(b=>b.classList.toggle("on",b.dataset.v===v));try{localStorage.setItem("gemini_res",v);}catch(e){}}
-document.querySelectorAll("#resM .chip,#resA .chip").forEach(b=>b.onclick=()=>setRes(b.dataset.v));
+function setRes(v){state.res=v;document.querySelectorAll("#resM .chip,#resA .chip,#resI .chip").forEach(b=>b.classList.toggle("on",b.dataset.v===v));try{localStorage.setItem("gemini_res",v);}catch(e){}}
+document.querySelectorAll("#resM .chip,#resA .chip,#resI .chip").forEach(b=>b.onclick=()=>setRes(b.dataset.v));
 try{const sr=localStorage.getItem("gemini_res");if(sr)setRes(sr);}catch(e){}
 document.getElementById("menuBtn").onclick=()=>{document.getElementById("drawer").classList.remove("hide");renderLikeList();};
 document.getElementById("drawerClose").onclick=()=>document.getElementById("drawer").classList.add("hide");
@@ -423,7 +492,7 @@ async function learnFromLikes(){
   const btn=document.getElementById("learnBtn");btn.disabled=true;const old=btn.textContent;btn.textContent="学習中…";
   try{
     const imgs=await Promise.all(L.slice(-16).map(r=>shrinkDataUrl(r.dataUrl,512)));
-    styleProfile=await describeImages(imgs);
+    styleProfile=(await describeImages(imgs)).slice(0,260);
     saveProfile();
     const pb=document.getElementById("profileBox");if(pb)pb.value=styleProfile;
     useLikes=true;
@@ -480,15 +549,24 @@ function pump(){ while(inFlight<MAX_CONCURRENT && queue.length){ runJob(queue.sh
 function generate(){
   const code=(keyInput.value||"").trim();
   if(!code){setStatus("合言葉を入力してください（右上メニュー）。",true);return;}
-  const auto=state.mode==="auto", ar=auto?state.aspA:state.aspM, n=auto?state.aCount:state.mCount;
   const results=document.getElementById("results");
+  function enqueue(prompt,ar,refs){
+    const card=document.createElement("div");card.className="rc "+arClass(ar);
+    card.innerHTML='<span class="badge">待機中</span><div class="ph"><div class="spin"></div></div><div class="cap">待機中…</div><div class="acts"></div>';
+    results.prepend(card);queue.push({card,prompt,ar,refs:refs||[]});
+  }
+  if(state.screen==="int"){                       // 内観モード（開発中）
+    for(let i=0;i<state.iCount;i++) enqueue(buildInteriorPrompt(),state.aspI,[]);
+    pump();return;
+  }
+  const auto=state.mode==="auto", ar=auto?state.aspA:state.aspM, n=auto?state.aCount:state.mCount;
   for(let i=0;i<n;i++){
     let refImg,refHint,randAll;
     if(auto){const rid=rnd(ALL_IDS);refImg=REF[rid].img;refHint=REF[rid].hint;randAll=true;}
     else{const rid=state.material;refImg=rid?REF[rid].img:null;refHint=rid?REF[rid].hint:"";randAll=false;}
     let prompt=buildPrompt({randAll:randAll,refHint:refHint});
     const refs=[]; if(refImg)refs.push(refImg);
-    if(useLikes&&styleProfile){ prompt+=" Additional style guidance learned from the user's preferred examples (follow these tendencies): "+styleProfile; }
+    if(useLikes&&styleProfile){ prompt+=" Subtle preferred accents — apply lightly as secondary details only, and do NOT change the composition, time of day, season, number of floors, wall material or overall style specified above: "+styleProfile; }
     const card=document.createElement("div");card.className="rc "+arClass(ar);
     card.innerHTML='<span class="badge">待機中</span><div class="ph"><div class="spin"></div></div><div class="cap">待機中…</div><div class="acts"></div>';
     results.prepend(card);

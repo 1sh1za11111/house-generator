@@ -4,16 +4,16 @@
 const VISION_MODEL = "gemini-2.5-flash";
 
 const INSTRUCTION = [
-  "You are helping build an image-generation prompt for Japanese detached houses (注文住宅).",
+  "You are refining an EXISTING image-generation prompt for Japanese detached houses (注文住宅).",
   "The attached photos are examples the user LIKES.",
-  "Extract the COMMON visual and design characteristics shared across them.",
-  "Cover: exterior wall materials and colours, roof form and material, massing and proportion,",
-  "window/opening character, entrance and approach, landscaping and greenery, boundary treatment,",
-  "and lighting / photographic mood.",
-  "Output ONE concise English paragraph of comma-separated descriptive attributes (max about 80 words),",
-  "suitable to append directly to an image-generation prompt.",
-  "Do not describe any single house uniquely, do not mention brands, no bullet points, no headings,",
-  "no preamble — output only the descriptive text."
+  "Extract ONLY subtle secondary design accents common across them — such as accent material",
+  "combinations, trim and edge detailing, colour accents, entrance and approach detailing,",
+  "planting character, and small design touches.",
+  "DO NOT mention: camera angle or composition, time of day, lighting, season, weather or sky,",
+  "number of floors, the primary wall material, building form, or overall photographic style —",
+  "those are controlled separately and must NOT be changed.",
+  "Output ONE short comma-separated list of English descriptive phrases, at most 25 words total.",
+  "No sentences, no headings, no preamble — output only the list."
 ].join(" ");
 
 export default async function handler(req, res) {
