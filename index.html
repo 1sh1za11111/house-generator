@@ -10,7 +10,7 @@
     --bg:#f4f6fb;--card:#ffffff;--ink:#1f2a3d;--mut:#6b7a93;--line:#e7ebf2;--soft:#f1f4f9;
     --sh:0 1px 2px rgba(25,40,75,.05),0 2px 6px rgba(25,40,75,.05);
     --err:#e0564b;--ok:#1a9e54;
-    --blue:#2f6df6;--amber:#ef9921;--teal:#15a7a0;--green:#36a85b;--purple:#7a5cf0;--slate:#5b6b8c;--pink:#e0609a;--indigo:#4f5bd5;
+    --blue:#2f6df6;--amber:#ef9921;--teal:#15a7a0;--green:#36a85b;--purple:#7a5cf0;--slate:#5b6b8c;--pink:#e0609a;--indigo:#4f5bd5;--orange:#e2703a;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;-webkit-font-smoothing:antialiased;font-size:14px;}
@@ -26,7 +26,7 @@
   .hd .tt{font-size:13.5px;font-weight:700;color:var(--ink);}
   .hd .tt small{font-weight:500;font-size:11px;color:var(--mut);margin-left:6px;}
   .ac-blue{--acc:var(--blue);} .ac-amber{--acc:var(--amber);} .ac-teal{--acc:var(--teal);}
-  .ac-green{--acc:var(--green);} .ac-purple{--acc:var(--purple);} .ac-slate{--acc:var(--slate);} .ac-pink{--acc:var(--pink);} .ac-indigo{--acc:var(--indigo);}
+  .ac-green{--acc:var(--green);} .ac-purple{--acc:var(--purple);} .ac-slate{--acc:var(--slate);} .ac-pink{--acc:var(--pink);} .ac-indigo{--acc:var(--indigo);} .ac-orange{--acc:var(--orange);}
 
   .modes{display:flex;gap:4px;padding:4px;background:var(--soft);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;}
   .modes button{flex:1;border:none;background:transparent;font:inherit;font-weight:700;font-size:13.5px;color:var(--mut);padding:11px;border-radius:9px;cursor:pointer;transition:.15s;}
@@ -105,6 +105,11 @@
   .rc .acts .likebtn{flex:1;text-align:center;font-size:11px;font-weight:700;border:1px solid var(--line);color:var(--pink2);background:var(--card);padding:6px;border-radius:9px;cursor:pointer;}
   .rc.liked .acts .likebtn{color:#fff;background:var(--pink);border-color:var(--pink);}
   .rc.liked{outline:2px solid var(--pink);outline-offset:-2px;}
+  .lklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-top:4px;}
+  .lk{position:relative;border-radius:9px;overflow:hidden;border:1px solid var(--line);aspect-ratio:1/1;}
+  .lk img{width:100%;height:100%;object-fit:cover;display:block;}
+  .lkx{position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:13px;line-height:1;cursor:pointer;padding:0;}
+  .lkx:hover{background:var(--err);}
   .tbtn{border:1px solid var(--line);cursor:pointer;font:inherit;font-size:11px;font-weight:700;color:var(--blue);background:var(--card);padding:6px 12px;border-radius:8px;}
   .tbtn:hover{background:var(--soft);}
   .lb{position:fixed;inset:0;z-index:100;background:rgba(15,22,40,.93);display:flex;align-items:center;justify-content:center;}
@@ -187,6 +192,16 @@
           <button class="chip on" data-v="">指定なし</button>
         </div>
       </div>
+      <div class="card ac-orange">
+        <div class="hd"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></span><span class="tt">季節</span></div>
+        <div class="chips" id="season">
+          <button class="chip" data-v="spring">春</button>
+          <button class="chip" data-v="summer">夏</button>
+          <button class="chip" data-v="autumn">秋</button>
+          <button class="chip" data-v="winter">冬</button>
+          <button class="chip on" data-v="">指定なし</button>
+        </div>
+      </div>
       <div class="card ac-slate">
         <div class="hd"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V8l8-5 8 5v13"/><path d="M4 14h16M4 17.5h16"/></svg></span><span class="tt">階数</span></div>
         <div class="chips" id="floors">
@@ -255,6 +270,9 @@
     </div>
     <div class="keystate no" id="keyState">未設定</div>
     <div class="hint">管理者から共有された合言葉を入力してください。このブラウザ内にのみ保存されます。<b>APIキーはサーバー側に安全に保管され、ここには表示・保存されません。</b></div>
+    <div class="field-l" style="margin-top:22px;">学習に使う画像（いいね）<span id="likeCount" style="font-weight:400;color:var(--mut);"></span></div>
+    <div class="lklist" id="likeList"></div>
+    <div class="hint">× を押すと学習セットから外れます（いいね解除）。学習は新しい方から最大16枚を使用します。</div>
     <div class="field-l" style="margin-top:22px;">学習した好みのプロファイル</div>
     <textarea id="profileBox" rows="7" style="width:100%;font:inherit;font-size:12px;line-height:1.5;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--card);resize:vertical;outline:none;" placeholder="結果一覧の「いいねから学習」を押すと、いいね画像の共通特徴がここに言語化されます（手直し可）"></textarea>
     <div style="display:flex;gap:8px;margin-top:8px;"><button class="tbtn" id="saveProfile">保存</button><button class="tbtn" id="clearProfile">クリア</button></div>
@@ -280,11 +298,12 @@ const ALL_IDS=Object.keys(REF);
 
 const BASE="professional architectural real-estate photograph of a modern Japanese custom-built house, architecturally accurate and structurally coherent with realistic buildable construction, correct proportions and consistent perspective, the roof material and the wall cladding forming a realistic and harmonious combination with consistent detailing across the whole building, fully compliant with the Japanese Building Standards Act (Kenchiku Kijun Ho): realistic Japanese residential scale generally under about 10 m in height, the building set back from the site boundaries with proper clearance, a visible concrete foundation base, eaves with gutters and downpipes, balcony railings at a safe height of about 1.1 m, and correctly proportioned windows for daylight and ventilation, sharp clean lines, strong high-contrast composition, refined design, immaculate well-kept surroundings, tasteful exterior floor tiles paving the entrance approach and terrace, set in a quiet Japanese residential neighborhood but the surrounding neighboring houses are kept out of frame with the focus entirely on this single house, a quiet residential street or road may optionally run along the front of the property, photorealistic, ultra detailed, 8k";
 const COMP={front:"photographed perfectly straight-on from directly in front of the house, symmetrical frontal elevation, camera lens perpendicular and parallel to the main facade, centered and balanced composition at eye level, flat rectilinear framing with no perspective distortion and no angled corner view",angle:"photographed from a three-quarter angle showing two sides of the house, natural dynamic perspective, eye-level wide shot",low:"photographed from a low angle looking slightly upward at the house, dramatic imposing perspective",high:"photographed from a slightly elevated high angle overlooking the house and front garden"};
+const SEASON={spring:"in spring, fresh light-green new foliage with blossoming trees in the planting",summer:"in summer, lush deep green foliage under strong sunlight",autumn:"in autumn, the foliage turning warm red gold and amber",winter:"in winter, deciduous trees bare with evergreen shrubs remaining, crisp cold clear air"};
 const FLOORS={"1":"a single-story house (Japanese hiraya) with a low horizontal silhouette","2":"a two-story house","3":"a three-story house"};
 const STYLE={"simple-modern":"simple modern minimalist style, cubic flat-roof form","natural":"natural warm style with timber and lush greenery","nordic":"Scandinavian style, gabled roof, light calm tones","wa-modern":"Japanese modern (wa-modern) style, refined Japanese aesthetic","luxury":"luxury high-end style, grand imposing facade, premium finishes","country":"warm country cottage style, pitched roof"};
 const NEG=" Strictly avoid and exclude: overhead power lines, utility poles, electrical wires and cables, TV antennas, wall-mounted air-conditioner units, exposed pipes, electric meter boxes, hoses, trash bins, parked bicycles, general clutter and miscellaneous objects, moss, stains, faded or dirty walls, weeds, concrete block boundary walls, aluminium sliding sash windows, cheap builder-grade tract-house appearance, bland beige mismatched low-cost cladding, tiny cramped windows, narrow pencil-house proportions, other neighbouring houses or buildings visible in the frame or background, crowded cramped neighbourhood with adjacent houses looming close, structurally impossible or nonsensical architecture, physically implausible construction, floating or unsupported building parts, distorted warped or inconsistent geometry, misaligned mismatched structural elements, Escher-like impossible geometry, mismatched or contradictory roof and wall materials, inconsistent cladding across the facade, unrealistic over-scaled height for a Japanese detached house, building sitting hard against the site boundary with no clearance, missing foundation, missing eaves gutters or downpipes, balcony without a proper railing, designs violating Japanese building code, flat dull overcast snapshot lighting, amateur low-quality photo, blur, distortion.";
 
-const state={mode:"auto",aspM:"1:1",aspA:"1:1",res:"1K",comp:"",floors:"",time:"",material:"",garden:"",style:"",styleOther:"",mCount:1,aCount:4};
+const state={mode:"auto",aspM:"1:1",aspA:"1:1",res:"1K",comp:"",floors:"",season:"",time:"",material:"",garden:"",style:"",styleOther:"",mCount:1,aCount:4};
 function rnd(a){return a[Math.floor(Math.random()*a.length)];}
 function pickComp(){const r=Math.random();return r<0.4?"front":(r<0.8?"angle":(r<0.9?"low":"high"));} // 正面40% 斜め40% ロー10% 俯瞰10%
 function pieceStyle(vv,o){if(o&&o.trim())return o.trim()+" style";if(vv&&STYLE[vv])return STYLE[vv];return STYLE[rnd(Object.keys(STYLE))];}
@@ -294,11 +313,13 @@ function buildPrompt(o){
   const gardenSel=o.randAll?rnd(["yes","no",""]):state.garden;
   const compKey=o.randAll?pickComp():(state.comp||pickComp());
   const floorSel=o.randAll?rnd(["1","2","3"]):(state.floors||rnd(["1","2","3"]));
+  const seasonKey=o.randAll?rnd(["spring","summer","autumn","winter"]):(state.season||rnd(["spring","summer","autumn","winter"]));
   const parts=[BASE,style,FLOORS[floorSel],COMP[compKey]];
   parts.push(o.refHint?(o.refHint+" — the exterior facade cladding must exactly match the material, color, texture and board profile shown in the attached reference texture image"):"tasteful refined exterior cladding");
   if(gardenSel==="yes")parts.push("with a beautifully designed front garden, lush green lawn, leafy trees and abundant greenery, with tasteful landscape planting");
   else if(gardenSel==="no")parts.push("with a clean minimal hardscape frontage and paved approach");
-  else parts.push(timeKey==="night"?"with tasteful minimal landscaping":"surrounded by a green lawn and leafy trees with plenty of fresh greenery");
+  else parts.push(timeKey==="night"?"with tasteful minimal landscaping":"surrounded by a lawn and leafy trees with plenty of planting");
+  parts.push(SEASON[seasonKey]);
   if(timeKey==="morning")parts.push("early morning with soft warm golden sunlight under a clear vivid azure blue sky, sunlight coming from roughly a 45-degree angle casting beautiful long shadows with elegant light-and-shadow contrast (chiaroscuro), vivid green surroundings, the windows clearly mirroring the surrounding sky, greenery and outdoor scenery");
   else if(timeKey==="day")parts.push("daytime under a bright clear vivid azure blue sky, sunlight from roughly a 45-degree angle casting crisp well-defined shadows with beautiful light-and-shadow contrast, vivid green surroundings, the windows clearly mirroring the bright sky and surrounding scenery");
   else parts.push("at night under a deep blue twilight sky, dramatic exterior up-lighting with ground uplights washing warm light upward across the facade walls, warm-colored interior light glowing and softly spilling out through the windows, cozy inviting illuminated atmosphere");
@@ -326,7 +347,7 @@ const matsEl=document.getElementById("mats");
 function selectMat(id,el){document.querySelectorAll("#mats .mat").forEach(x=>x.classList.remove("on"));el.classList.add("on");state.material=id;refreshPrompt();}
 
 function chipGroup(id,key){document.querySelectorAll("#"+id+" .chip").forEach(b=>{b.onclick=()=>{document.querySelectorAll("#"+id+" .chip").forEach(x=>x.classList.remove("on"));b.classList.add("on");state[key]=b.dataset.v;if(key==="style"){document.getElementById("styleOther").value="";state.styleOther="";}refreshPrompt();};});}
-chipGroup("aspM","aspM");chipGroup("aspA","aspA");chipGroup("comp","comp");chipGroup("floors","floors");chipGroup("time","time");chipGroup("garden","garden");chipGroup("style","style");
+chipGroup("aspM","aspM");chipGroup("aspA","aspA");chipGroup("comp","comp");chipGroup("floors","floors");chipGroup("season","season");chipGroup("time","time");chipGroup("garden","garden");chipGroup("style","style");
 document.getElementById("styleOther").oninput=e=>{state.styleOther=e.target.value;if(e.target.value.trim()){document.querySelectorAll("#style .chip").forEach(x=>x.classList.remove("on"));state.style="";}refreshPrompt();};
 function stepper(mi,pl,va,key,min,max){const set=v=>{state[key]=Math.max(min,Math.min(max,v));document.getElementById(va).textContent=state[key];refreshPrompt();};document.getElementById(mi).onclick=()=>set(state[key]-1);document.getElementById(pl).onclick=()=>set(state[key]+1);}
 stepper("mMinus","mPlus","mCount","mCount",1,8);
@@ -344,14 +365,13 @@ document.getElementById("saveKey").onclick=()=>{try{localStorage.setItem(KEY_STO
 function setRes(v){state.res=v;document.querySelectorAll("#resM .chip,#resA .chip").forEach(b=>b.classList.toggle("on",b.dataset.v===v));try{localStorage.setItem("gemini_res",v);}catch(e){}}
 document.querySelectorAll("#resM .chip,#resA .chip").forEach(b=>b.onclick=()=>setRes(b.dataset.v));
 try{const sr=localStorage.getItem("gemini_res");if(sr)setRes(sr);}catch(e){}
-document.getElementById("menuBtn").onclick=()=>document.getElementById("drawer").classList.remove("hide");
+document.getElementById("menuBtn").onclick=()=>{document.getElementById("drawer").classList.remove("hide");renderLikeList();};
 document.getElementById("drawerClose").onclick=()=>document.getElementById("drawer").classList.add("hide");
 document.getElementById("drawer").addEventListener("click",e=>{if(e.target.id==="drawer")document.getElementById("drawer").classList.add("hide");});
 document.getElementById("likeToggle").onclick=()=>{ if(!styleProfile){setStatus("先に「いいねから学習」を実行してください。",true);return;} useLikes=!useLikes; updateLikes(); };
 document.getElementById("learnBtn").onclick=learnFromLikes;
 document.getElementById("saveProfile").onclick=()=>{ styleProfile=(document.getElementById("profileBox").value||"").trim(); saveProfile(); updateLikes(); setStatus("プロファイルを保存しました。"); };
 document.getElementById("clearProfile").onclick=()=>{ styleProfile=""; saveProfile(); document.getElementById("profileBox").value=""; useLikes=false; updateLikes(); };
-(function(){const pb=document.getElementById("profileBox");if(pb)pb.value=styleProfile;})();
 
 function arClass(ar){return ar==="16:9"?"ar169":(ar==="9:16"?"ar916":"");}
 function setStatus(t,err){const s=document.getElementById("status");s.textContent=t;s.className="status"+(err?" err":"");}
@@ -402,7 +422,7 @@ async function learnFromLikes(){
   if(!L.length){setStatus("先に良かった画像に「♡ いいね」を付けてください。",true);return;}
   const btn=document.getElementById("learnBtn");btn.disabled=true;const old=btn.textContent;btn.textContent="学習中…";
   try{
-    const imgs=await Promise.all(L.slice(-6).map(r=>shrinkDataUrl(r.dataUrl,512)));
+    const imgs=await Promise.all(L.slice(-16).map(r=>shrinkDataUrl(r.dataUrl,512)));
     styleProfile=await describeImages(imgs);
     saveProfile();
     const pb=document.getElementById("profileBox");if(pb)pb.value=styleProfile;
@@ -411,7 +431,24 @@ async function learnFromLikes(){
   }catch(e){ setStatus("学習に失敗: "+(e.message||e),true); }
   btn.disabled=false;btn.textContent=old;updateLikes();
 }
-function toggleLike(card){const rec=RECS[card.dataset.id];if(!rec)return;rec.liked=!rec.liked;card.classList.toggle("liked",rec.liked);const b=card.querySelector(".likebtn");if(b)b.textContent=rec.liked?"♥ いいね済":"♡ いいね";idbPut(rec);updateLikes();}
+function setLike(id,val){
+  const rec=RECS[id];if(!rec)return;
+  rec.liked=!!val;idbPut(rec);
+  const card=document.querySelector('#results .rc[data-id="'+id+'"]');
+  if(card){card.classList.toggle("liked",rec.liked);const b=card.querySelector(".likebtn");if(b)b.textContent=rec.liked?"♥ いいね済":"♡ いいね";}
+  updateLikes();renderLikeList();
+}
+function toggleLike(card){const rec=RECS[card.dataset.id];if(!rec)return;setLike(card.dataset.id,!rec.liked);}
+function renderLikeList(){
+  const el=document.getElementById("likeList");const cnt=document.getElementById("likeCount");
+  if(!el)return;
+  const L=likedRecs().slice().sort((a,b)=>a.ts-b.ts);
+  if(cnt)cnt.textContent=" "+L.length+"枚";
+  if(!L.length){el.innerHTML='<div class="hint" style="margin:0;">まだ「♡ いいね」した画像がありません。</div>';return;}
+  el.innerHTML="";
+  L.forEach(r=>{const d=document.createElement("div");d.className="lk";d.dataset.id=r.id;d.innerHTML='<img alt=""><button class="lkx" title="学習セットから外す">×</button>';d.querySelector("img").src=r.dataUrl;el.appendChild(d);});
+}
+document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest(".lkx");if(!x)return;const d=x.closest(".lk");if(d)setLike(d.dataset.id,false);});
 function updateLikes(){
   const n=likedRecs().length;
   const lb=document.getElementById("learnBtn");if(lb)lb.textContent="いいねから学習 ("+n+")";
@@ -509,7 +546,7 @@ document.getElementById("dlSel").onclick=()=>{
 };
 
 document.getElementById("clearHist").onclick=()=>{ if(confirm("保存した生成画像の履歴をすべて消去しますか？")){ idbClear(); savedCount=0; document.querySelectorAll("#results .rc").forEach(el=>{ if(el.querySelector(".ph img")) el.remove(); }); updateHist(); updateSelCount(); } };
-(async function(){ const all=await idbAll(); all.sort((a,b)=>a.ts-b.ts); const results=document.getElementById("results"); all.forEach(rec=>results.prepend(buildFinishedCard(rec))); savedCount=all.length; updateHist(); updateSelCount(); updateLikes(); })();
+(async function(){ const all=await idbAll(); all.sort((a,b)=>a.ts-b.ts); const results=document.getElementById("results"); all.forEach(rec=>results.prepend(buildFinishedCard(rec))); savedCount=all.length; const pb=document.getElementById("profileBox"); if(pb)pb.value=styleProfile; updateHist(); updateSelCount(); updateLikes(); renderLikeList(); })();
 refreshPrompt();
 </script>
 </body>

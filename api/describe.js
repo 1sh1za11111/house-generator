@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   if (!Array.isArray(images) || !images.length) { res.status(400).json({ error: "画像がありません" }); return; }
 
   const parts = [{ text: INSTRUCTION }];
-  images.slice(0, 6).forEach(d => {
+  images.slice(0, 16).forEach(d => {
     if (!d || typeof d !== "string") return;
     const c = d.indexOf(",");
     if (c < 0) return;
